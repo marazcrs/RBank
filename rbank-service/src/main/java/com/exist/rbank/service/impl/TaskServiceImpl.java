@@ -34,7 +34,11 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional(readOnly = true)
     public TaskDto getByTaskId(Long id) throws EntityDoesNotExistException {
-        return taskMapper.toDto(getTask(id));
+        Task task = getTask(id);
+        if (CollectionUtils.isNotEmpty(task.getSubTasks())) {
+            task.getSubTasks().sort(Comparator.comparing(Task::getStartDate));
+        }
+        return taskMapper.toDto(task);
     }
 
     @Override
@@ -78,14 +82,11 @@ public class TaskServiceImpl implements TaskService {
     public List<TaskDto> list() {
         return Lists.newArrayList(taskRepository.findAll())
                 .stream()
-                .sorted(Comparator.comparing(task -> task.getStartDate().getDayOfMonth()))
+                .sorted(Comparator.comparing(task -> task.getStartDate()))
                 .map(task -> {
                     TaskDto taskDto = taskMapper.toDto(task);
                     if (CollectionUtils.isNotEmpty(taskDto.getSubTasks())) {
-                        taskDto.getSubTasks()
-                                .stream()
-                                .sorted(Comparator.comparing(subTaskDto -> subTaskDto.getStartDate().getDayOfMonth()))
-                                .collect(Collectors.toList());
+                        taskDto.getSubTasks().sort(Comparator.comparing(TaskDto::getStartDate));
                     }
                     return taskDto;
                 })
