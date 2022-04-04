@@ -6,11 +6,15 @@ import com.exist.rbank.exception.EntityDoesNotExistException;
 import com.exist.rbank.exception.InvalidDataException;
 import com.exist.rbank.reference.TaskStatus;
 
+import java.util.List;
+
 public interface TaskService {
 
     TaskDto getByTaskId(Long id) throws EntityDoesNotExistException;
 
     TaskDto create(TaskDto taskDto) throws EntityAlreadyExistsException, InvalidDataException, EntityDoesNotExistException;
 
-    void updateStatus(Long id, TaskStatus taskStatus) throws EntityDoesNotExistException;
+    TaskDto updateStatus(Long id, TaskStatus taskStatus) throws EntityDoesNotExistException, InvalidDataException;
+
+    List<TaskDto> list();
 }
